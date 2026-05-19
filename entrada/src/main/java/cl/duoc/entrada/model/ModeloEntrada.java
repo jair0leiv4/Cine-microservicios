@@ -1,28 +1,28 @@
-package cl.duoc.entrada.model; // paquete del modelo
+package cl.duoc.entrada.model;
 
-import jakarta.persistence.Entity; // librerias JPA
-import jakarta.persistence.GeneratedValue; // constructor con parametros
-import jakarta.persistence.GenerationType; // getters setters toString
-import jakarta.persistence.Id; // constructor vacio
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity // indica que es una entidad de BD
-@Table(name = "entradas") // nombre de tabla
-@Data // genera getters y setters automaticamente
-@NoArgsConstructor // constructor vacio
-@AllArgsConstructor // constructor con todos los atributos
+@Entity
+@Table(name = "entradas")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ModeloEntrada {
 
-    @Id // llave primaria
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto incremento
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tipo; // tipo de entrada
+    private String tipo;
 
-    private Integer precio; // precio entrada
+    private Integer precio;
 
-    private Long funcionId; // id de funcion relacionada
+    private Long funcionId;
 }

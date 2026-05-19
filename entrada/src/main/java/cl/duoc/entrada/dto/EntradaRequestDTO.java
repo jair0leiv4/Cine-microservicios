@@ -1,22 +1,22 @@
-package cl.duoc.entrada.dto; // paquete dto
+package cl.duoc.entrada.dto;
 
-import jakarta.validation.constraints.NotBlank; // valida texto
-import jakarta.validation.constraints.NotNull; // valida null
-import lombok.AllArgsConstructor; // constructor completo
-import lombok.Data; // getters setters
-import lombok.NoArgsConstructor; // constructor vacio
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data // genera getters setters
-@NoArgsConstructor // constructor vacio
-@AllArgsConstructor // constructor completo
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EntradaRequestDTO {
 
-    @NotBlank(message = "El tipo es obligatorio") // valida texto vacio
+    @NotBlank(message = "El tipo es obligatorio")
     private String tipo;
 
-    @NotNull(message = "El precio es obligatorio") // valida null
+    @NotNull(message = "El precio es obligatorio")
     private Integer precio;
 
-    @NotNull(message = "La funcion es obligatoria") // valida null
+    @NotNull(message = "La funcion es obligatoria")
     private Long funcionId;
 }

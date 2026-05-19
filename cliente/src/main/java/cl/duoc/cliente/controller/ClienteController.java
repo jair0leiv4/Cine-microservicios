@@ -37,7 +37,7 @@ public class ClienteController {
     public ResponseEntity<ClienteResponseDTO>
     buscar(@PathVariable Long id) {
 
-        return service.buscarPorId(id) 
+        return service.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -53,8 +53,8 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(
-            @PathVariable Long id) {
+    public ResponseEntity<Void>
+    eliminar(@PathVariable Long id) {
 
         service.eliminar(id);
 

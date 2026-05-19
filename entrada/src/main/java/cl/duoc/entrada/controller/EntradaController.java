@@ -1,13 +1,15 @@
-package cl.duoc.entrada.controller; // paquete controller
+package cl.duoc.entrada.controller;
 
-import java.util.List; // importar dto
+import java.util.List;
 
-import org.springframework.http.ResponseEntity; // importar service
-import org.springframework.web.bind.annotation.GetMapping; // validaciones
-import org.springframework.web.bind.annotation.PostMapping; // constructor automatico
-import org.springframework.web.bind.annotation.RequestBody; // respuestas http
-import org.springframework.web.bind.annotation.RequestMapping; // anotaciones rest
-import org.springframework.web.bind.annotation.RestController; // listas
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import cl.duoc.entrada.dto.EntradaRequestDTO;
 import cl.duoc.entrada.dto.EntradaResponseDTO;
@@ -15,14 +17,14 @@ import cl.duoc.entrada.service.EntradaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@RestController // controlador rest
-@RequestMapping("/api/entradas") // ruta api
-@RequiredArgsConstructor // constructor automatico
+@RestController
+@RequestMapping("/api/entradas")
+@RequiredArgsConstructor
 public class EntradaController {
 
-    private final EntradaService service; // service
+    private final EntradaService service;
 
-    @GetMapping // listar
+    @GetMapping
     public ResponseEntity<List<EntradaResponseDTO>>
     listar() {
 
@@ -31,7 +33,16 @@ public class EntradaController {
         );
     }
 
-    @PostMapping // crear
+    @GetMapping("/{id}")
+    public ResponseEntity<EntradaResponseDTO>
+    buscar(@PathVariable Long id) {
+
+        return service.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
     public ResponseEntity<EntradaResponseDTO>
     crear(
             @Valid @RequestBody
@@ -39,5 +50,14 @@ public class EntradaController {
 
         return ResponseEntity.status(201)
                 .body(service.guardar(dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void>
+    eliminar(@PathVariable Long id) {
+
+        service.eliminar(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

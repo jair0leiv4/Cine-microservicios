@@ -1,15 +1,15 @@
-package cl.duoc.entrada.config; // paquete config
+package cl.duoc.entrada.config;
 
-import org.springframework.context.annotation.Bean; // bean
-import org.springframework.context.annotation.Configuration; // configuracion
-import org.springframework.web.client.RestTemplate; // cliente http
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
-@Configuration // clase de configuracion
+@Configuration
 public class AppConfig {
 
-    @Bean // crea bean manejado por spring
+    @Bean
     public RestTemplate restTemplate() {
 
-        return new RestTemplate(); // retorna resttemplate
+        return new RestTemplate();
     }
 }

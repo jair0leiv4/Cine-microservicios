@@ -1,10 +1,9 @@
-package cl.duoc.entrada.repository; // paquete repository
+package cl.duoc.entrada.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository; // importar modelo
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import cl.duoc.entrada.model.ModeloEntrada; // JPA
+import cl.duoc.entrada.model.ModeloEntrada;
 
 public interface EntradaRepository
         extends JpaRepository<ModeloEntrada, Long> {
-        // CRUD automatico
 }

@@ -10,9 +10,11 @@ import cl.duoc.cliente.dto.ClienteResponseDTO;
 import cl.duoc.cliente.model.ModeloCliente;
 import cl.duoc.cliente.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ClienteService {
 
     private final ClienteRepository repository;
@@ -30,14 +32,18 @@ public class ClienteService {
 
     public List<ClienteResponseDTO> listar() {
 
+        log.info("Listando clientes");
+
         return repository.findAll()
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
     }
 
-    public Optional<ClienteResponseDTO> buscarPorId(
-            Long id) {
+    public Optional<ClienteResponseDTO>
+    buscarPorId(Long id) {
+
+        log.info("Buscando cliente por ID");
 
         return repository.findById(id)
                 .map(this::mapToDTO);
@@ -54,12 +60,16 @@ public class ClienteService {
                         dto.getTelefono()
                 );
 
+        log.info("Guardando cliente");
+
         return mapToDTO(
                 repository.save(cliente)
         );
     }
 
     public void eliminar(Long id) {
+
+        log.info("Eliminando cliente");
 
         repository.deleteById(id);
     }

@@ -1,25 +1,26 @@
-package cl.duoc.entrada.service; // paquete service
+package cl.duoc.entrada.service;
 
-import cl.duoc.entrada.dto.*; // importar dto
-import cl.duoc.entrada.model.ModeloEntrada; // importar modelo
-import cl.duoc.entrada.repository.EntradaRepository; // importar repo
+import java.util.List;
+import java.util.Optional;
 
-import lombok.RequiredArgsConstructor; // constructor automatico
-import lombok.extern.slf4j.Slf4j; // logs
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import org.springframework.stereotype.Service; // service
-import org.springframework.web.client.RestTemplate; // cliente http
+import cl.duoc.entrada.dto.EntradaRequestDTO;
+import cl.duoc.entrada.dto.EntradaResponseDTO;
+import cl.duoc.entrada.model.ModeloEntrada;
+import cl.duoc.entrada.repository.EntradaRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List; // listas
-
-@Service // indica capa service
-@RequiredArgsConstructor // constructor automatico
-@Slf4j // habilita logs
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class EntradaService {
 
-    private final EntradaRepository repository; // repositorio
+    private final EntradaRepository repository;
 
-    private final RestTemplate restTemplate; // conexion microservicio
+    private final RestTemplate restTemplate;
 
     private EntradaResponseDTO mapToDTO(
             ModeloEntrada entrada) {
@@ -34,7 +35,7 @@ public class EntradaService {
 
     public List<EntradaResponseDTO> listar() {
 
-        log.info("Listando entradas"); // log consola
+        log.info("Listando entradas");
 
         return repository.findAll()
                 .stream()
@@ -42,27 +43,39 @@ public class EntradaService {
                 .toList();
     }
 
+    public Optional<EntradaResponseDTO>
+    buscarPorId(Long id) {
+
+        log.info("Buscando entrada");
+
+        return repository.findById(id)
+                .map(this::mapToDTO);
+    }
+
+
+
+
     public EntradaResponseDTO guardar(
             EntradaRequestDTO dto) {
 
         String funcionURL =
-                "http://localhost:8085/api/funciones/"
-                        + dto.getFuncionId();
+        "http://localhost:8085/api/funciones/"
+                + dto.getFuncionId();
 
         try {
 
-            restTemplate.getForEntity(
-                    funcionURL,
-                    String.class
-            );
+                restTemplate.getForEntity(
+                             funcionURL,
+                String.class
+                );
 
-        } catch (Exception e) {
+                } catch (Exception e) {
 
-            log.error("Funcion no encontrada");
+                log.error("Funcion no encontrada");
 
-            throw new RuntimeException(
-                    "La funcion no existe"
-            );
+                throw new RuntimeException(
+                        "La funcion no existe"
+                );
         }
 
         ModeloEntrada entrada =
@@ -78,5 +91,15 @@ public class EntradaService {
         return mapToDTO(
                 repository.save(entrada)
         );
+    }
+
+
+
+    
+    public void eliminar(Long id) {
+
+        log.info("Eliminando entrada");
+
+        repository.deleteById(id);
     }
 }
