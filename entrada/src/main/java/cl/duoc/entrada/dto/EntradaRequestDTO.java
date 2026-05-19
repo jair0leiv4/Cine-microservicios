@@ -1,42 +1,22 @@
-package cl.duoc.entrada.dto;
+package cl.duoc.entrada.dto; // paquete dto
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank; // valida texto
+import jakarta.validation.constraints.NotNull; // valida null
+import lombok.AllArgsConstructor; // constructor completo
+import lombok.Data; // getters setters
+import lombok.NoArgsConstructor; // constructor vacio
 
+@Data // genera getters setters
+@NoArgsConstructor // constructor vacio
+@AllArgsConstructor // constructor completo
 public class EntradaRequestDTO {
 
-    @NotNull(message = "La funcion es obligatoria")
-    private Long funcionId;
+    @NotBlank(message = "El tipo es obligatorio") // valida texto vacio
+    private String tipo;
 
-    @NotNull(message = "El asiento es obligatorio")
-    private Long asientoId;
-
-    @NotNull(message = "El precio es obligatorio")
+    @NotNull(message = "El precio es obligatorio") // valida null
     private Integer precio;
 
-    public EntradaRequestDTO() {
-    }
-
-    public Long getFuncionId() {
-        return funcionId;
-    }
-
-    public Long getAsientoId() {
-        return asientoId;
-    }
-
-    public Integer getPrecio() {
-        return precio;
-    }
-
-    public void setFuncionId(Long funcionId) {
-        this.funcionId = funcionId;
-    }
-
-    public void setAsientoId(Long asientoId) {
-        this.asientoId = asientoId;
-    }
-
-    public void setPrecio(Integer precio) {
-        this.precio = precio;
-    }
+    @NotNull(message = "La funcion es obligatoria") // valida null
+    private Long funcionId;
 }

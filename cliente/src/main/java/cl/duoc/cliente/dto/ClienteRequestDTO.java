@@ -3,6 +3,7 @@ package cl.duoc.cliente.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+
 public class ClienteRequestDTO {
 
     @NotBlank(message = "El nombre es obligatorio")

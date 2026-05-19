@@ -1,36 +1,19 @@
-package cl.duoc.entrada.dto;
+package cl.duoc.entrada.dto; // paquete dto
 
+import lombok.AllArgsConstructor; // constructor completo
+import lombok.Data; // getters setters
+import lombok.NoArgsConstructor; // constructor vacio
+
+@Data // genera getters setters
+@NoArgsConstructor // constructor vacio
+@AllArgsConstructor // constructor completo
 public class EntradaResponseDTO {
 
-    private Long id;
-    private Long funcionId;
-    private Long asientoId;
-    private Integer precio;
+    private Long id; // id entrada
 
-    public EntradaResponseDTO(Long id,
-                               Long funcionId,
-                               Long asientoId,
-                               Integer precio) {
+    private String tipo; // tipo entrada
 
-        this.id = id;
-        this.funcionId = funcionId;
-        this.asientoId = asientoId;
-        this.precio = precio;
-    }
+    private Integer precio; // precio entrada
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getFuncionId() {
-        return funcionId;
-    }
-
-    public Long getAsientoId() {
-        return asientoId;
-    }
-
-    public Integer getPrecio() {
-        return precio;
-    }
+    private Long funcionId; // id funcion
 }

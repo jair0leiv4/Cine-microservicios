@@ -2,6 +2,10 @@ package cl.duoc.venta;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+
+@EnableFeignClients
 
 @SpringBootApplication
 public class VentaApplication {
@@ -10,4 +14,6 @@ public class VentaApplication {
 		SpringApplication.run(VentaApplication.class, args);
 	}
 
+
+	
 }

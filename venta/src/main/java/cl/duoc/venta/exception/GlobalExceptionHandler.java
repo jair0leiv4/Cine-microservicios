@@ -1,15 +1,15 @@
-package cl.duoc.entrada.exception; // paquete exception
+package cl.duoc.venta.exception;
 
-import java.util.LinkedHashMap; // estados http
-import java.util.Map; // respuestas
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import org.springframework.http.HttpStatus; // validaciones
-import org.springframework.http.ResponseEntity; // manejar errores
-import org.springframework.web.bind.MethodArgumentNotValidException; // advice
-import org.springframework.web.bind.annotation.ExceptionHandler; // mapa
-import org.springframework.web.bind.annotation.RestControllerAdvice; // map
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice // manejo global errores
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

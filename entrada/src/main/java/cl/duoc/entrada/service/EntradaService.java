@@ -1,36 +1,40 @@
-package cl.duoc.entrada.service;
+package cl.duoc.entrada.service; // paquete service
 
-import java.util.List;
+import cl.duoc.entrada.dto.*; // importar dto
+import cl.duoc.entrada.model.ModeloEntrada; // importar modelo
+import cl.duoc.entrada.repository.EntradaRepository; // importar repo
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import lombok.RequiredArgsConstructor; // constructor automatico
+import lombok.extern.slf4j.Slf4j; // logs
 
-import cl.duoc.entrada.dto.EntradaRequestDTO;
-import cl.duoc.entrada.dto.EntradaResponseDTO;
-import cl.duoc.entrada.model.ModeloEntrada;
-import cl.duoc.entrada.repository.EntradaRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service; // service
+import org.springframework.web.client.RestTemplate; // cliente http
 
-@Service
-@RequiredArgsConstructor
+import java.util.List; // listas
+
+@Service // indica capa service
+@RequiredArgsConstructor // constructor automatico
+@Slf4j // habilita logs
 public class EntradaService {
 
-    private final EntradaRepository repository;
-    private final RestTemplate restTemplate;
+    private final EntradaRepository repository; // repositorio
+
+    private final RestTemplate restTemplate; // conexion microservicio
 
     private EntradaResponseDTO mapToDTO(
             ModeloEntrada entrada) {
 
         return new EntradaResponseDTO(
                 entrada.getId(),
-                entrada.getFuncionId(),
-                entrada.getAsientoId(),
-                entrada.getPrecio()
+                entrada.getTipo(),
+                entrada.getPrecio(),
+                entrada.getFuncionId()
         );
     }
 
     public List<EntradaResponseDTO> listar() {
+
+        log.info("Listando entradas"); // log consola
 
         return repository.findAll()
                 .stream()
@@ -45,56 +49,31 @@ public class EntradaService {
                 "http://localhost:8085/api/funciones/"
                         + dto.getFuncionId();
 
-        String asientoURL =
-                "http://localhost:8084/api/asientos/"
-                        + dto.getAsientoId();
-
         try {
 
-            ResponseEntity<String> funcionResponse =
-                    restTemplate.getForEntity(
-                            funcionURL,
-                            String.class
-                    );
-
-            ResponseEntity<String> asientoResponse =
-                    restTemplate.getForEntity(
-                            asientoURL,
-                            String.class
-                    );
-
-            if(!funcionResponse
-                    .getStatusCode()
-                    .is2xxSuccessful()) {
-
-                throw new RuntimeException(
-                        "Funcion no encontrada"
-                );
-            }
-
-            if(!asientoResponse
-                    .getStatusCode()
-                    .is2xxSuccessful()) {
-
-                throw new RuntimeException(
-                        "Asiento no encontrado"
-                );
-            }
+            restTemplate.getForEntity(
+                    funcionURL,
+                    String.class
+            );
 
         } catch (Exception e) {
 
+            log.error("Funcion no encontrada");
+
             throw new RuntimeException(
-                    "Error validando funcion o asiento"
+                    "La funcion no existe"
             );
         }
 
         ModeloEntrada entrada =
                 new ModeloEntrada(
                         null,
-                        dto.getFuncionId(),
-                        dto.getAsientoId(),
-                        dto.getPrecio()
+                        dto.getTipo(),
+                        dto.getPrecio(),
+                        dto.getFuncionId()
                 );
+
+        log.info("Guardando entrada");
 
         return mapToDTO(
                 repository.save(entrada)
