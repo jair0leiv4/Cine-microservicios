@@ -1,7 +1,6 @@
 package cl.duoc.cliente.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -10,29 +9,37 @@ import cl.duoc.cliente.dto.ClienteResponseDTO;
 import cl.duoc.cliente.model.ModeloCliente;
 import cl.duoc.cliente.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ClienteService {
 
     private final ClienteRepository repository;
 
+    // CONVERTIR ENTITY A DTO
     private ClienteResponseDTO mapToDTO(
             ModeloCliente cliente) {
 
-        return new ClienteResponseDTO(
-                cliente.getId(),
-                cliente.getNombre(),
-                cliente.getCorreo(),
-                cliente.getTelefono()
+        ClienteResponseDTO dto =
+                new ClienteResponseDTO();
+
+        dto.setId(
+                cliente.getId()
         );
+
+        dto.setNombre(
+                cliente.getNombre()
+        );
+
+        dto.setCorreo(
+                cliente.getCorreo()
+        );
+
+        return dto;
     }
 
+    // LISTAR CLIENTES
     public List<ClienteResponseDTO> listar() {
-
-        log.info("Listando clientes");
 
         return repository.findAll()
                 .stream()
@@ -40,36 +47,71 @@ public class ClienteService {
                 .toList();
     }
 
-    public Optional<ClienteResponseDTO>
-    buscarPorId(Long id) {
+    // BUSCAR CLIENTE POR ID
+    public ClienteResponseDTO buscarPorId(Long id) {
 
-        log.info("Buscando cliente por ID");
+        ModeloCliente cliente = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "El cliente no existe"
+                        ));
 
-        return repository.findById(id)
-                .map(this::mapToDTO);
+        return mapToDTO(cliente);
     }
 
+    // CREAR CLIENTE
     public ClienteResponseDTO guardar(
             ClienteRequestDTO dto) {
 
         ModeloCliente cliente =
-                new ModeloCliente(
-                        null,
-                        dto.getNombre(),
-                        dto.getCorreo(),
-                        dto.getTelefono()
-                );
+                new ModeloCliente();
 
-        log.info("Guardando cliente");
+        cliente.setNombre(
+                dto.getNombre()
+        );
+
+        cliente.setCorreo(
+                dto.getCorreo()
+        );
 
         return mapToDTO(
                 repository.save(cliente)
         );
     }
 
+    // ACTUALIZAR CLIENTE
+    public ClienteResponseDTO actualizar(
+            Long id,
+            ClienteRequestDTO dto) {
+
+        ModeloCliente cliente = repository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "El cliente no existe"
+                        ));
+
+        cliente.setNombre(
+                dto.getNombre()
+        );
+
+        cliente.setCorreo(
+                dto.getCorreo()
+        );
+
+        return mapToDTO(
+                repository.save(cliente)
+        );
+    }
+
+    // ELIMINAR CLIENTE
     public void eliminar(Long id) {
 
-        log.info("Eliminando cliente");
+        if (!repository.existsById(id)) {
+
+            throw new RuntimeException(
+                    "El cliente no existe"
+            );
+        }
 
         repository.deleteById(id);
     }

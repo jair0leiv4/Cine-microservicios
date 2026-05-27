@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class VentaResponseDTO {
 
-    private Long id;
+    private Long id;// ID de la venta, se genera automáticamente al guardar la venta en la base de datos
 
     private Long clienteId;
 

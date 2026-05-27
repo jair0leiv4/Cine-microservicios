@@ -5,13 +5,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(
-        name = "entrada-service",
-        url = "http://localhost:8086"
+        name = "entrada",
+        url = "http://localhost:8086/api/entradas"
 )
 public interface EntradaClient {
 
-    @GetMapping("/api/entradas/{id}")
-    String obtenerEntrada(
+    @GetMapping("/{id}")
+    String obtenerPorId(
             @PathVariable Long id
     );
 }
