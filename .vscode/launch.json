@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-VentaApplication<venta>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.duoc.venta.VentaApplication",
+            "projectName": "venta",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

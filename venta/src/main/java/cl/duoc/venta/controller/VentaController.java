@@ -3,25 +3,28 @@ package cl.duoc.venta.controller;
 import cl.duoc.venta.dto.VentaRequestDTO;
 import cl.duoc.venta.dto.VentaResponseDTO;
 import cl.duoc.venta.service.VentaService;
-
 import jakarta.validation.Valid;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/ventas")
 @RequiredArgsConstructor
+@Tag(name="Ventas", description="Ventas relacionadas con las entradas")
+
 public class VentaController {
 
     private final VentaService service;
 
+    
     // LISTAR TODAS LAS VENTAS
     @GetMapping
+    @Operation(summary="Obtener todas las ventas", description = "Obtiene la lista de todas las ventas")
     public ResponseEntity<List<VentaResponseDTO>> listar() {
 
         return ResponseEntity.ok(
