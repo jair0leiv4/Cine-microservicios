@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import org.springframework.hateoas.RepresentationModel;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VentaResponseDTO {
+public class VentaResponseDTO
+        extends RepresentationModel<VentaResponseDTO> {
 
-    private Long id;// ID de la venta, se genera automáticamente al guardar la venta en la base de datos
+    private Long id;
 
     private Long clienteId;
 

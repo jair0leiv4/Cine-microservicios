@@ -2,6 +2,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "FuncionApplication",
+            "request": "launch",
+            "mainClass": "cl.duoc.funcion.FuncionApplication",
+            "projectName": "funcion"
+        },
+        {
+            "type": "java",
+            "name": "EntradaApplication",
+            "request": "launch",
+            "mainClass": "cl.duoc.entrada.EntradaApplication",
+            "projectName": "entrada"
+        },
+        {
+            "type": "java",
+            "name": "ClienteApplication",
+            "request": "launch",
+            "mainClass": "cl.duoc.cliente.ClienteApplication",
+            "projectName": "cliente"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-VentaApplication<venta>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
