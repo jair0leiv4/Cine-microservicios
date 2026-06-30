@@ -4,8 +4,9 @@
             "type": "java",
             "name": "VentaApplication",
             "request": "launch",
+            "cwd": "${workspaceFolder}/venta",
             "mainClass": "cl.duoc.venta.VentaApplication",
-            "projectName": ""
+            "projectName": "venta"
         },
         {
             "type": "java",

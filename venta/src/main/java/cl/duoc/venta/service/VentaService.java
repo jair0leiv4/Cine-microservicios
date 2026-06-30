@@ -1,17 +1,16 @@
 package cl.duoc.venta.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import cl.duoc.venta.client.ClienteClient;
 import cl.duoc.venta.client.EntradaClient;
 import cl.duoc.venta.dto.VentaRequestDTO;
 import cl.duoc.venta.dto.VentaResponseDTO;
 import cl.duoc.venta.model.ModeloVenta;
 import cl.duoc.venta.repository.VentaRepository;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
