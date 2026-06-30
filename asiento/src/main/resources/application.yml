@@ -1,0 +1,18 @@
+# ═══════════════════════════════════════════════════════════════
+# ASIENTO — application.yml
+# Configuracion base + seleccion de perfil activo via variable de
+# entorno SPRING_PROFILES_ACTIVE (por defecto: dev)
+# ═══════════════════════════════════════════════════════════════
+
+spring:
+  application:
+    name: asiento
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/index.html

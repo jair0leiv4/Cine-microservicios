@@ -1,0 +1,18 @@
+# ═══════════════════════════════════════════════════════════════
+# VENTA — application.yml
+# Configuracion base + seleccion de perfil activo via variable de
+# entorno SPRING_PROFILES_ACTIVE (por defecto: dev)
+# ═══════════════════════════════════════════════════════════════
+
+spring:
+  application:
+    name: venta
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html

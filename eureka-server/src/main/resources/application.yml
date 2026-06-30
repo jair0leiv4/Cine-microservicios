@@ -1,0 +1,23 @@
+# ═══════════════════════════════════════════════════════════════
+# EUREKA-SERVER — application.yml
+# ═══════════════════════════════════════════════════════════════
+
+spring:
+  application:
+    name: eureka-server
+
+server:
+  port: ${PORT:8761}
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: ${EUREKA_HOSTNAME:localhost}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info

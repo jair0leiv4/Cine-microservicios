@@ -1,6 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
 # API GATEWAY — application.yml
-#
 # Centraliza el enrutamiento hacia los 10 microservicios del
 # sistema de cine. Usa Spring Cloud Gateway MVC (servlet stack).
 # ═══════════════════════════════════════════════════════════════
@@ -8,102 +7,63 @@
 spring:
   application:
     name: api-gateway
-
   cloud:
     gateway:
       mvc:
-        # ─────────────────────────────────────────────────────
-        # RUTAS — cada ruta mapea un path a un microservicio.
-        # lb://NOMBRE resuelve el servicio via Eureka (load
-        # balancing). El NOMBRE debe coincidir con la propiedad
-        # spring.application.name de cada microservicio.
-        # ─────────────────────────────────────────────────────
         routes:
-
-          # Categorías de películas — puerto 8084
           - id: categoria
             uri: lb://CATEGORIA
             predicates:
               - Path=/api/categorias/**
-
-          # Películas en cartelera — puerto 8081
           - id: pelicula
             uri: lb://PELICULA
             predicates:
               - Path=/api/peliculas/**
-
-          # Salas del cine — puerto 8083
           - id: sala
             uri: lb://SALA
             predicates:
               - Path=/api/salas/**
-
-          # Asientos por sala — puerto 8091
           - id: asiento
             uri: lb://ASIENTO
             predicates:
               - Path=/api/asientos/**
-
-          # Funciones programadas — puerto 8082
           - id: funcion
             uri: lb://FUNCION
             predicates:
               - Path=/api/funciones/**
-
-          # Entradas (tickets) — puerto 8086
           - id: entrada
             uri: lb://ENTRADA
             predicates:
               - Path=/api/entradas/**
-
-          # Productos de concesión — puerto 8085
           - id: producto
             uri: lb://PRODUCTO
             predicates:
               - Path=/api/productos/**
-
-          # Clientes registrados — puerto 8087
           - id: cliente
             uri: lb://CLIENTE
             predicates:
               - Path=/api/clientes/**
-
-          # Ventas realizadas — puerto 8088
           - id: venta
             uri: lb://VENTA
             predicates:
               - Path=/api/ventas/**
-
-          # Pagos de ventas — puerto 8089
           - id: pago
             uri: lb://PAGO
             predicates:
               - Path=/api/pagos/**
 
-# ─────────────────────────────────────────────────────────────
-# SERVIDOR
-# ─────────────────────────────────────────────────────────────
 server:
-  port: 8090
+  port: ${PORT:8090}
 
-# ─────────────────────────────────────────────────────────────
-# EUREKA — Service Discovery
-# El gateway busca los microservicios por nombre en Eureka
-# en vez de usar IPs hardcodeadas.
-# ─────────────────────────────────────────────────────────────
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
     fetch-registry: true
     register-with-eureka: true
   instance:
     prefer-ip-address: true
 
-# ─────────────────────────────────────────────────────────────
-# ACTUATOR — Endpoint de salud (útil para Render/Docker)
-# Accesible en: GET http://localhost:8090/actuator/health
-# ─────────────────────────────────────────────────────────────
 management:
   endpoints:
     web:

@@ -34,4 +34,4 @@ COPY --from=build /app/target/*.jar app.jar
 # Puerto del gateway
 EXPOSE 8090
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-prod}", "-jar", "app.jar"]
