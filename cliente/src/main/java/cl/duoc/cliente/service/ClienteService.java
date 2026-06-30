@@ -10,109 +10,73 @@ import cl.duoc.cliente.model.ModeloCliente;
 import cl.duoc.cliente.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Capa de negocio del microservicio Cliente.
+ *
+ * Responsabilidades:
+ *  - CRUD completo de clientes.
+ *  - Mapeo correcto de todos los campos (nombre, correo, teléfono).
+ */
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
 
     private final ClienteRepository repository;
 
-    // CONVERTIR ENTITY A DTO
-    private ClienteResponseDTO mapToDTO(
-            ModeloCliente cliente) {
-
-        ClienteResponseDTO dto =
-                new ClienteResponseDTO();
-
-        dto.setId(
-                cliente.getId()
-        );
-
-        dto.setNombre(
-                cliente.getNombre()
-        );
-
-        dto.setCorreo(
-                cliente.getCorreo()
-        );
-
-        return dto;
+    // ════════════════════════════════════════════════════
+    //  Conversión Entity → DTO (incluye teléfono)
+    // ════════════════════════════════════════════════════
+    private ClienteResponseDTO mapToDTO(ModeloCliente c) {
+        return new ClienteResponseDTO(
+                c.getId(), c.getNombre(), c.getCorreo(), c.getTelefono());
     }
 
-    // LISTAR CLIENTES
+    // ════════════════════════════════════════════════════
+    //  LISTAR — GET /api/clientes
+    // ════════════════════════════════════════════════════
     public List<ClienteResponseDTO> listar() {
-
-        return repository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .toList();
+        return repository.findAll().stream().map(this::mapToDTO).toList();
     }
 
-    // BUSCAR CLIENTE POR ID
+    // ════════════════════════════════════════════════════
+    //  BUSCAR POR ID — GET /api/clientes/{id}
+    // ════════════════════════════════════════════════════
     public ClienteResponseDTO buscarPorId(Long id) {
+        return repository.findById(id)
+                .map(this::mapToDTO)
+                .orElseThrow(() -> new RuntimeException(
+                        "Cliente con ID " + id + " no encontrado"));
+    }
 
+    // ════════════════════════════════════════════════════
+    //  CREAR — POST /api/clientes
+    // ════════════════════════════════════════════════════
+    public ClienteResponseDTO guardar(ClienteRequestDTO dto) {
+        ModeloCliente cliente = new ModeloCliente(
+                null, dto.getNombre(), dto.getCorreo(), dto.getTelefono());
+        return mapToDTO(repository.save(cliente));
+    }
+
+    // ════════════════════════════════════════════════════
+    //  ACTUALIZAR — PUT /api/clientes/{id}
+    // ════════════════════════════════════════════════════
+    public ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto) {
         ModeloCliente cliente = repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "El cliente no existe"
-                        ));
-
-        return mapToDTO(cliente);
+                .orElseThrow(() -> new RuntimeException(
+                        "Cliente con ID " + id + " no encontrado"));
+        cliente.setNombre(dto.getNombre());
+        cliente.setCorreo(dto.getCorreo());
+        cliente.setTelefono(dto.getTelefono());
+        return mapToDTO(repository.save(cliente));
     }
 
-    // CREAR CLIENTE
-    public ClienteResponseDTO guardar(
-            ClienteRequestDTO dto) {
-
-        ModeloCliente cliente =
-                new ModeloCliente();
-
-        cliente.setNombre(
-                dto.getNombre()
-        );
-
-        cliente.setCorreo(
-                dto.getCorreo()
-        );
-
-        return mapToDTO(
-                repository.save(cliente)
-        );
-    }
-
-    // ACTUALIZAR CLIENTE
-    public ClienteResponseDTO actualizar(
-            Long id,
-            ClienteRequestDTO dto) {
-
-        ModeloCliente cliente = repository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "El cliente no existe"
-                        ));
-
-        cliente.setNombre(
-                dto.getNombre()
-        );
-
-        cliente.setCorreo(
-                dto.getCorreo()
-        );
-
-        return mapToDTO(
-                repository.save(cliente)
-        );
-    }
-
-    // ELIMINAR CLIENTE
+    // ════════════════════════════════════════════════════
+    //  ELIMINAR — DELETE /api/clientes/{id}
+    // ════════════════════════════════════════════════════
     public void eliminar(Long id) {
-
         if (!repository.existsById(id)) {
-
-            throw new RuntimeException(
-                    "El cliente no existe"
-            );
+            throw new RuntimeException("Cliente con ID " + id + " no encontrado");
         }
-
         repository.deleteById(id);
     }
 }

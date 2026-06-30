@@ -6,6 +6,10 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ════════════════════════════════════════════════
+         PARENT: Spring Boot 3.3.5 — igual que el resto
+         de microservicios del proyecto
+         ════════════════════════════════════════════════ -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,27 +20,70 @@
     <groupId>cl.duoc</groupId>
     <artifactId>api-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <name>api-gateway</name>
+    <description>API Gateway del sistema de cine — enruta peticiones a los microservicios</description>
 
     <properties>
         <java.version>17</java.version>
+        <!-- Spring Cloud 2023.0.3 es compatible con Spring Boot 3.3.x -->
         <spring-cloud.version>2023.0.3</spring-cloud.version>
     </properties>
 
     <dependencies>
 
-        <!-- GATEWAY -->
+        <!-- ════════════════════════════════════════════
+             SPRING WEB (servlet stack)
+             Requerido por el Gateway MVC. Debe declararse
+             ANTES del gateway para evitar conflictos.
+             ════════════════════════════════════════════ -->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- EUREKA CLIENT -->
+        <!-- ════════════════════════════════════════════
+             SPRING CLOUD GATEWAY — MVC (servlet stack)
+             Versión MVC: compatible con spring-boot-starter-web.
+             NO usar spring-cloud-starter-gateway (reactivo)
+             porque entraría en conflicto con el stack servlet.
+             ════════════════════════════════════════════ -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-gateway-server-mvc</artifactId>
+        </dependency>
+
+        <!-- ════════════════════════════════════════════
+             EUREKA CLIENT — Service Discovery
+             Permite que el Gateway resuelva lb://SERVICIO
+             consultando Eureka en vez de IPs fijas.
+             Se excluye spring-webmvc interno para evitar
+             duplicado con spring-boot-starter-web.
+             ════════════════════════════════════════════ -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <exclusions>
+                <!-- Evita conflicto: Eureka trae su propia versión de servlet-api -->
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- TEST -->
+        <!-- ════════════════════════════════════════════
+             ACTUATOR — Endpoints de salud y monitoreo
+             Útil para verificar estado del gateway
+             en Render/Docker: GET /actuator/health
+             ════════════════════════════════════════════ -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ════════════════════════════════════════════
+             TEST
+             ════════════════════════════════════════════ -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -45,9 +92,13 @@
 
     </dependencies>
 
+    <!-- ════════════════════════════════════════════════
+         BOM: Bill of Materials de Spring Cloud
+         Gestiona versiones de todas las dependencias
+         cloud automáticamente.
+         ════════════════════════════════════════════════ -->
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -55,20 +106,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-
         </plugins>
     </build>
 
 </project>
-

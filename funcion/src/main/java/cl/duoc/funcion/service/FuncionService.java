@@ -12,6 +12,13 @@ import cl.duoc.funcion.repository.FuncionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Capa de negocio del microservicio Funcion.
+ *
+ * Responsabilidades:
+ *  - CRUD completo de funciones de cine.
+ *  - Regla de negocio: formato de hora HH:mm (ej: 18:30).
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,58 +26,66 @@ public class FuncionService {
 
     private final FuncionRepository repository;
 
-    private FuncionResponseDTO mapToDTO(
-            ModeloFuncion funcion) {
-
-        return new FuncionResponseDTO(
-                funcion.getId(),
-                funcion.getHora(),
-                funcion.getSalaId(),
-                funcion.getPeliculaId()
-        );
+    // ════════════════════════════════════════════════════
+    //  Conversión Entity → DTO
+    // ════════════════════════════════════════════════════
+    private FuncionResponseDTO mapToDTO(ModeloFuncion f) {
+        return new FuncionResponseDTO(f.getId(), f.getHora(), f.getSalaId(), f.getPeliculaId());
     }
 
+    // ─── Regla de negocio: validar formato HH:mm ─────────
+    private void validarHora(String hora) {
+        if (hora == null || !hora.matches("^([01]?\\d|2[0-3]):[0-5]\\d$")) {
+            throw new RuntimeException("Hora inválida. Use formato HH:mm (ej: 18:30)");
+        }
+    }
+
+    // ════════════════════════════════════════════════════
+    //  LISTAR — GET /api/funciones
+    // ════════════════════════════════════════════════════
     public List<FuncionResponseDTO> listar() {
-
         log.info("Listando funciones");
-
-        return repository.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .toList();
+        return repository.findAll().stream().map(this::mapToDTO).toList();
     }
 
-    public Optional<FuncionResponseDTO>
-    buscarPorId(Long id) {
-
-        log.info("Buscando funcion por ID");
-
-        return repository.findById(id)
-                .map(this::mapToDTO);
+    // ════════════════════════════════════════════════════
+    //  BUSCAR POR ID — GET /api/funciones/{id}
+    // ════════════════════════════════════════════════════
+    public Optional<FuncionResponseDTO> buscarPorId(Long id) {
+        return repository.findById(id).map(this::mapToDTO);
     }
 
-    public FuncionResponseDTO guardar(
-            FuncionRequestDTO dto) {
-
-        ModeloFuncion funcion =
-                new ModeloFuncion(
-                        null,
-                        dto.getHora(),
-                        dto.getSalaId(),
-                        dto.getPeliculaId()
-                );
-
-        log.info("Guardando funcion");
-
-        return mapToDTO(
-                repository.save(funcion)
-        );
+    // ════════════════════════════════════════════════════
+    //  CREAR — POST /api/funciones
+    // ════════════════════════════════════════════════════
+    public FuncionResponseDTO guardar(FuncionRequestDTO dto) {
+        validarHora(dto.getHora());
+        ModeloFuncion funcion = new ModeloFuncion(
+                null, dto.getHora(), dto.getSalaId(), dto.getPeliculaId());
+        log.info("Guardando función en sala {} a las {}", dto.getSalaId(), dto.getHora());
+        return mapToDTO(repository.save(funcion));
     }
 
+    // ════════════════════════════════════════════════════
+    //  ACTUALIZAR — PUT /api/funciones/{id}
+    // ════════════════════════════════════════════════════
+    public FuncionResponseDTO actualizar(Long id, FuncionRequestDTO dto) {
+        ModeloFuncion funcion = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Función con ID " + id + " no encontrada"));
+        validarHora(dto.getHora());
+        funcion.setHora(dto.getHora());
+        funcion.setSalaId(dto.getSalaId());
+        funcion.setPeliculaId(dto.getPeliculaId());
+        return mapToDTO(repository.save(funcion));
+    }
+
+    // ════════════════════════════════════════════════════
+    //  ELIMINAR — DELETE /api/funciones/{id}
+    // ════════════════════════════════════════════════════
     public void eliminar(Long id) {
-
-        log.info("Eliminando funcion");
-
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Función con ID " + id + " no encontrada");
+        }
         repository.deleteById(id);
     }
 }

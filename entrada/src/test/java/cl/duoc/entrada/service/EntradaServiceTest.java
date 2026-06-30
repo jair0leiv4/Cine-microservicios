@@ -1,9 +1,9 @@
-package cl.duoc.cliente.service;
+package cl.duoc.entrada.service;
 
-import cl.duoc.cliente.dto.ClienteRequestDTO;
-import cl.duoc.cliente.dto.ClienteResponseDTO;
-import cl.duoc.cliente.model.ModeloCliente;
-import cl.duoc.cliente.repository.ClienteRepository;
+import cl.duoc.entrada.dto.EntradaRequestDTO;
+import cl.duoc.entrada.dto.EntradaResponseDTO;
+import cl.duoc.entrada.model.ModeloEntrada;
+import cl.duoc.entrada.repository.EntradaRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,13 +19,13 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ClienteServiceTest {
+public class EntradaServiceTest {
 
     @Mock
-    private ClienteRepository repository;
+    private EntradaRepository repository;
 
     @InjectMocks
-    private ClienteService service;
+    private EntradaService service;
 
     @BeforeEach
     void setUp() {
@@ -37,20 +37,21 @@ public class ClienteServiceTest {
     // =============================================
 
     @Test
-    @DisplayName("Debe retornar lista de clientes")
+    @DisplayName("Debe retornar lista de entradas")
     void testListar() {
 
         // GIVEN
-        ModeloCliente cliente = new ModeloCliente(1L, "Juan Pérez", "juan@mail.com", "912345678");
-        when(repository.findAll()).thenReturn(List.of(cliente));
+        ModeloEntrada entrada = new ModeloEntrada(1L, "General", 5000, 1L);
+        when(repository.findAll()).thenReturn(List.of(entrada));
 
         // WHEN
-        List<ClienteResponseDTO> resultado = service.listar();
+        List<EntradaResponseDTO> resultado = service.listar();
 
         // THEN
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
-        assertEquals("Juan Pérez", resultado.get(0).getNombre());
+        assertEquals("General", resultado.get(0).getTipo());
+        assertEquals(5000, resultado.get(0).getPrecio());
     }
 
     // =============================================
@@ -58,20 +59,20 @@ public class ClienteServiceTest {
     // =============================================
 
     @Test
-    @DisplayName("Debe retornar cliente por ID")
+    @DisplayName("Debe retornar entrada por ID")
     void testBuscarPorId() {
 
         // GIVEN
-        ModeloCliente cliente = new ModeloCliente(1L, "Ana López", "ana@mail.com", "998765432");
-        when(repository.findById(1L)).thenReturn(Optional.of(cliente));
+        ModeloEntrada entrada = new ModeloEntrada(1L, "VIP", 9000, 2L);
+        when(repository.findById(1L)).thenReturn(Optional.of(entrada));
 
         // WHEN
-        ClienteResponseDTO resultado = service.buscarPorId(1L);
+        EntradaResponseDTO resultado = service.buscarPorId(1L);
 
         // THEN
         assertNotNull(resultado);
-        assertEquals("Ana López", resultado.getNombre());
-        assertEquals("ana@mail.com", resultado.getCorreo());
+        assertEquals("VIP", resultado.getTipo());
+        assertEquals(9000, resultado.getPrecio());
     }
 
     // =============================================
@@ -79,7 +80,7 @@ public class ClienteServiceTest {
     // =============================================
 
     @Test
-    @DisplayName("Debe lanzar excepción si cliente no existe")
+    @DisplayName("Debe lanzar excepción si entrada no existe")
     void testBuscarPorIdNoExiste() {
 
         // GIVEN
@@ -90,7 +91,7 @@ public class ClienteServiceTest {
                 RuntimeException.class,
                 () -> service.buscarPorId(99L)
         );
-        assertEquals("El cliente no existe", ex.getMessage());
+        assertEquals("La entrada no existe", ex.getMessage());
     }
 
     // =============================================
@@ -98,29 +99,29 @@ public class ClienteServiceTest {
     // =============================================
 
     @Test
-    @DisplayName("Debe guardar y retornar cliente creado")
+    @DisplayName("Debe guardar y retornar entrada creada")
     void testGuardar() {
 
         // GIVEN
-        ClienteRequestDTO dto = new ClienteRequestDTO("Pedro Soto", "pedro@mail.com", "911223344");
-        ModeloCliente guardado = new ModeloCliente(1L, "Pedro Soto", "pedro@mail.com", "911223344");
-        when(repository.save(any(ModeloCliente.class))).thenReturn(guardado);
+        EntradaRequestDTO dto = new EntradaRequestDTO("Preferencial", 7000, 1L);
+        ModeloEntrada guardada = new ModeloEntrada(1L, "Preferencial", 7000, 1L);
+        when(repository.save(any(ModeloEntrada.class))).thenReturn(guardada);
 
         // WHEN
-        ClienteResponseDTO resultado = service.guardar(dto);
+        EntradaResponseDTO resultado = service.guardar(dto);
 
         // THEN
         assertNotNull(resultado);
-        assertEquals("Pedro Soto", resultado.getNombre());
-        verify(repository).save(any(ModeloCliente.class));
+        assertEquals("Preferencial", resultado.getTipo());
+        verify(repository).save(any(ModeloEntrada.class));
     }
 
     // =============================================
-    // TEST 5 - ELIMINAR EXISTENTE
+    // TEST 5 - ELIMINAR CON VALIDACIÓN
     // =============================================
 
     @Test
-    @DisplayName("Debe eliminar cliente existente")
+    @DisplayName("Debe eliminar entrada existente")
     void testEliminar() {
 
         // GIVEN
@@ -138,7 +139,7 @@ public class ClienteServiceTest {
     // =============================================
 
     @Test
-    @DisplayName("Debe lanzar excepción al eliminar cliente inexistente")
+    @DisplayName("Debe lanzar excepción al eliminar entrada inexistente")
     void testEliminarNoExiste() {
 
         // GIVEN
@@ -149,6 +150,6 @@ public class ClienteServiceTest {
                 RuntimeException.class,
                 () -> service.eliminar(99L)
         );
-        assertEquals("El cliente no existe", ex.getMessage());
+        assertEquals("La entrada no existe", ex.getMessage());
     }
 }

@@ -1,0 +1,268 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# docker-compose.yml — Sistema Cine Microservicios
+#
+# Levanta todos los servicios en el orden correcto:
+#   1. MySQL (base de datos compartida, una DB por servicio)
+#   2. Eureka Server (service discovery)
+#   3. Microservicios de dominio
+#   4. API Gateway (último, porque necesita que los demás estén listos)
+#
+# USO:
+#   docker-compose up --build
+#   docker-compose down -v      (elimina contenedores y volúmenes)
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ══════════════════════════════════════════════════════
+  #  BASE DE DATOS: MySQL 8
+  # ══════════════════════════════════════════════════════
+  mysql:
+    image: mysql:8.0
+    container_name: cine-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      # Script de inicialización: crea todas las bases de datos
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ══════════════════════════════════════════════════════
+  #  EUREKA SERVER — Service Discovery
+  # ══════════════════════════════════════════════════════
+  eureka-server:
+    build: ./eureka-server
+    container_name: cine-eureka
+    ports:
+      - "8761:8761"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: categoria (8084)
+  # ══════════════════════════════════════════════════════
+  categoria:
+    build: ./categoria
+    container_name: cine-categoria
+    ports:
+      - "8084:8084"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/categoria
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8084
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: sala (8083)
+  # ══════════════════════════════════════════════════════
+  sala:
+    build: ./sala
+    container_name: cine-sala
+    ports:
+      - "8083:8083"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/sala
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8083
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: pelicula (8081) — depende de categoria
+  # ══════════════════════════════════════════════════════
+  pelicula:
+    build: ./pelicula
+    container_name: cine-pelicula
+    ports:
+      - "8081:8081"
+    depends_on:
+      - categoria
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/pelicula
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8081
+      # Apunta al contenedor "categoria" en vez de localhost
+      - CATEGORIA_SERVICE_URL=http://categoria:8084/api/categorias/
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: funcion (8082)
+  # ══════════════════════════════════════════════════════
+  funcion:
+    build: ./funcion
+    container_name: cine-funcion
+    ports:
+      - "8082:8082"
+    depends_on:
+      - sala
+      - pelicula
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/funcion
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8082
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: asiento (8091) — depende de sala
+  # ══════════════════════════════════════════════════════
+  asiento:
+    build: ./asiento
+    container_name: cine-asiento
+    ports:
+      - "8091:8091"
+    depends_on:
+      - sala
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/asiento
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8091
+      - SALA_SERVICE_URL=http://sala:8083/api/salas/
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: entrada (8086)
+  # ══════════════════════════════════════════════════════
+  entrada:
+    build: ./entrada
+    container_name: cine-entrada
+    ports:
+      - "8086:8086"
+    depends_on:
+      - funcion
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/entrada
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8086
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: producto (8085)
+  # ══════════════════════════════════════════════════════
+  producto:
+    build: ./producto
+    container_name: cine-producto
+    ports:
+      - "8085:8085"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/producto
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8085
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: cliente (8087)
+  # ══════════════════════════════════════════════════════
+  cliente:
+    build: ./cliente
+    container_name: cine-cliente
+    ports:
+      - "8087:8087"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/cliente
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8087
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: venta (8088) — depende de cliente y entrada
+  # ══════════════════════════════════════════════════════
+  venta:
+    build: ./venta
+    container_name: cine-venta
+    ports:
+      - "8088:8088"
+    depends_on:
+      - cliente
+      - entrada
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/venta
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8088
+
+  # ══════════════════════════════════════════════════════
+  #  MICROSERVICIO: pago (8089) — depende de venta
+  # ══════════════════════════════════════════════════════
+  pago:
+    build: ./pago
+    container_name: cine-pago
+    ports:
+      - "8089:8089"
+    depends_on:
+      - venta
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/pago
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8089
+      - VENTA_SERVICE_URL=http://venta:8088/api/ventas/
+
+  # ══════════════════════════════════════════════════════
+  #  API GATEWAY (8090) — inicia al último
+  # ══════════════════════════════════════════════════════
+  api-gateway:
+    build: ./api-gateway
+    container_name: cine-gateway
+    ports:
+      - "8090:8090"
+    depends_on:
+      - eureka-server
+      - categoria
+      - sala
+      - pelicula
+      - funcion
+      - asiento
+      - entrada
+      - producto
+      - cliente
+      - venta
+      - pago
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SERVER_PORT=8090
+
+# ══════════════════════════════════════════════════════
+#  VOLÚMENES: persisten datos MySQL entre reinicios
+# ══════════════════════════════════════════════════════
+volumes:
+  mysql_data:
